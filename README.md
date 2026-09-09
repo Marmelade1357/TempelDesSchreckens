@@ -19,7 +19,28 @@ Basiert auf dem offiziellen Regelwerk: 3–10 Spieler, zwei geheime Teams (Abent
 
 ## Sound-Assets
 
-Die 4 Sound-Dateien unter `public/assets/audio/` (`flip-start.mp3`, `flip-gold.mp3`, `flip-fire.mp3`, `flip-empty.mp3`) sind generische Kartenumdreh-Soundeffekte. **Nicht enthalten** sind dagegen die illustrierten Karten-/Boxgrafiken des physischen Spiels (Schlüssel, Schatzkammer-Motive, Rollen-Porträts, Box-Cover) – das ist urheberrechtlich geschütztes Artwork von Schmidt Spiele/Yusuke Sato und wurde bewusst nicht übernommen. Die Oberfläche nutzt stattdessen eigene, einfache Emoji-/CSS-Symbole (🪙 🔥 ⬜ 🔒 🔑).
+Die 4 Sound-Dateien unter `public/assets/audio/` (`flip-start.mp3`, `flip-gold.mp3`, `flip-fire.mp3`, `flip-empty.mp3`) sind generische Kartenumdreh-Soundeffekte.
+
+## Bild-Assets (Platzhalter zum Selbst-Ersetzen)
+
+Unter `public/assets/` liegen 12 Platzhalter-Bilder, benannt nach dem Dateischema des Referenz-Projekts [richardcrng/tempel-des-schreckens](https://github.com/richardcrng/tempel-des-schreckens). Es sind **eigene, einfache Zeichnungen** (Rahmen + Symbol + Beschriftung) – **keine** Scans/Fotos der offiziellen, illustrierten Schmidt-Spiele-Karten, da diese urheberrechtlich geschützt sind. Eigene Bilder einfach unter demselben Dateinamen in `public/assets/` ablegen (JPEG bzw. PNG, wie angegeben) und den Server neu starten/den Container neu bauen – kein Code muss angepasst werden:
+
+| Datei | Wo sie im Spiel auftaucht |
+|---|---|
+| `tds-adventurer.jpeg` | Rollen-Anzeige unten im Spiel + Rollen-Aufdeckung am Spielende (wenn die Rolle „Abenteurer" ist) |
+| `tds-guardian.jpeg` | Dasselbe für die Rolle „Wächterin" |
+| `tds-gold.jpeg` | Aufgedeckte Schatzkammer mit Gold |
+| `tds-fire.jpeg` | Aufgedeckte Schatzkammer mit Feuerfalle |
+| `tds-empty.jpeg` | Aufgedeckte leere Schatzkammer |
+| `tds-chamber.jpeg` | Verdeckte (noch nicht geöffnete) Schatzkammer – die „Rückseite" |
+| `tds-key.jpeg` | Bild im „Wer bekommt den Schlüssel?"-Overlay |
+| `tds-box.png` | Aktuell nicht verankert – frei für eigene Verwendung (z. B. Box-Cover) |
+| `tds-main.jpeg` | Banner oben auf dem Start-Bildschirm |
+| `tds-alignments.jpeg` | Bild im Regeln-Modal (Abschnitt „Vorbereitung", Rollenverteilung) |
+| `tds-contents.jpeg` | Bild im Regeln-Modal (Abschnitt „Rundenende", Kammer-Inhalte) |
+| `tds-focus.jpeg` | Aktuell nicht verankert – frei für eigene Verwendung |
+
+Fehlt eine Datei (z. B. gelöscht statt ersetzt), fällt die Oberfläche automatisch auf das ursprüngliche Emoji-Symbol zurück (🪙 🔥 ⬜ 🔒 🔑) – nichts bricht.
 
 ## Projektstruktur
 

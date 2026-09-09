@@ -265,35 +265,36 @@
     return order;
   }
 
-  function renderSeats(state) {
-    const layer = $('seats-layer');
-    layer.innerHTML = '';
+  // Eine Zeile pro Spieler:in - Name/Behauptung links, die eigenen
+  // Schatzkammern als ausreichend groß dargestellte Karten rechts daneben
+  // (statt eines kreisrunden Tisches mit winzigen Kammer-Symbolen).
+  function renderPlayerRows(state) {
+    const list = $('player-rows');
+    list.innerHTML = '';
     const order = layoutOrder(state);
-    const n = order.length;
-    const RX = 40, RY = 38;
 
-    order.forEach((p, k) => {
-      const angleDeg = 90 + (k * 360) / n;
-      const rad = (angleDeg * Math.PI) / 180;
-      const x = 50 + Math.cos(rad) * RX;
-      const y = 50 + Math.sin(rad) * RY;
-
-      const classes = ['seat'];
+    order.forEach((p) => {
+      const classes = ['player-row'];
       const isMe = p.id === myId();
       if (isMe) classes.push('me');
       if (state.keyPlayerId === p.id) classes.push('key-holder');
       if (!p.connected && !p.isBot) classes.push('disconnected');
 
-      const initial = p.isBot ? '🤖' : (p.name || '?').trim().charAt(0).toUpperCase();
-      const avatar = el('div', { class: 'seat-avatar', text: initial });
-
       const tags = [];
       if (p.isHost) tags.push(el('span', { class: 'tag host', text: 'Host' }));
-      if (state.keyPlayerId === p.id) tags.push(el('span', { class: 'seat-key', text: '🔑' }));
-      const tagsRow = el('div', { class: 'seat-tags' }, tags);
+      if (isMe) tags.push(el('span', { class: 'tag me-tag', text: 'Du' }));
+      if (!p.connected && !p.isBot) tags.push(el('span', { class: 'tag', text: 'getrennt' }));
+      const tagsRow = el('div', { class: 'player-row-tags' }, tags);
+
+      const nameEl = el('div', { class: 'player-row-name' }, [
+        el('span', { text: (state.keyPlayerId === p.id ? '🔑 ' : '') + (p.isBot ? '🤖 ' : '') + p.name }),
+      ]);
 
       const claim = state.claims[p.id];
-      const claimEl = el('div', { class: 'seat-claim', text: claim ? `„${claim.text}"` : '' });
+      const claimEl = el('div', { class: 'player-row-claim', text: claim ? `„${claim.text}"` : '' });
+      const countEl = el('div', { class: 'player-row-count', text: p.openChambers != null ? `${p.openChambers} geöffnet` : '' });
+
+      const info = el('div', { class: 'player-row-info' }, [nameEl, tagsRow, claimEl, countEl]);
 
       const canPick = state.phase === 'playing' && state.keyPlayerId === myId() && p.id !== myId();
       const slots = (state.chambers[p.id] || []).map((slot, i) => {
@@ -317,49 +318,19 @@
       });
       const chamberRow = el('div', { class: 'chamber-row' }, slots);
 
-      const seat = el('div', { class: classes.join(' ') }, [
-        avatar,
-        el('div', { class: 'seat-name', text: p.name }),
-        tagsRow,
-        claimEl,
-        chamberRow,
-      ]);
-      seat.style.left = x + '%';
-      seat.style.top = y + '%';
-      layer.appendChild(seat);
-    });
-  }
-
-  function renderPlayerPanel(state) {
-    const list = $('player-panel-list');
-    list.innerHTML = '';
-    state.players.forEach((p) => {
-      const classes = ['player-panel-row'];
-      if (p.id === myId()) classes.push('me');
-      if (state.keyPlayerId === p.id) classes.push('key-holder');
-      if (!p.connected && !p.isBot) classes.push('disconnected');
-
-      const claim = state.claims[p.id];
-      const nameEl = el('div', { class: 'player-panel-name' }, [
-        el('span', { text: (state.keyPlayerId === p.id ? '🔑 ' : '') + (p.isBot ? '🤖 ' : '') + p.name }),
-      ]);
-      const wrap = el('div', {}, [
-        nameEl,
-        el('span', { class: 'player-panel-claim', text: claim ? `„${claim.text}"` : '' }),
-      ]);
-      const countEl = el('span', { class: 'player-panel-count', text: p.openChambers != null ? `🗝️ ${p.openChambers}` : '' });
-      list.appendChild(el('li', { class: classes.join(' ') }, [wrap, countEl]));
+      list.appendChild(el('li', { class: classes.join(' ') }, [info, chamberRow]));
     });
   }
 
   function renderPileHint(state) {
-    const hintEl = $('pile-hint');
+    const bar = $('pile-hint-bar');
     if (state.phase === 'playing' || state.phase === 'reveal') {
       const keyPlayer = findPlayer(state, state.keyPlayerId);
-      hintEl.textContent = keyPlayer ? `${keyPlayer.name} hat den Schlüssel` : '';
+      bar.textContent = keyPlayer ? `🗝️ ${keyPlayer.name} hat den Schlüssel` : '';
     } else {
-      hintEl.textContent = '';
+      bar.textContent = '';
     }
+    bar.classList.toggle('hidden', !bar.textContent);
   }
 
   function renderKeyOverlay(state) {
@@ -527,9 +498,8 @@
 
     renderKeyOverlay(state);
     maybeAnnounceRoundStart(state);
-    renderPlayerPanel(state);
-    renderSeats(state);
     renderPileHint(state);
+    renderPlayerRows(state);
     renderRevealOverlay(state);
     renderRoleAndClaim(state);
     renderRoundEnd(state);

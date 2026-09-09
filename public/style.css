@@ -208,198 +208,102 @@ input:focus, select:focus { outline: 2px solid var(--gold); }
 .round-badge { font-weight: 700; color: var(--gold-bright); }
 .tally-badge { font-weight: 700; color: var(--text-dim); background: var(--panel-alt); padding: 4px 10px; border-radius: 999px; font-size: 0.85rem; }
 
-/* ---------------- Der Tempelhof ---------------- */
+/* ---------------- Der Tempelhof: Spielerliste ---------------- */
 
 .table-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 20px 16px calc(var(--bottom-bar-height) + 24px);
   min-height: calc(100vh - 64px);
 }
 
-.table-oval {
-  position: relative;
-  width: min(97vw, 1240px);
-  height: min(82vw, 780px);
-  max-height: 74vh;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, var(--temple) 0%, var(--temple-dark) 72%, #241407 100%);
-  border: 10px solid #2c1c0c;
-  box-shadow: inset 0 4px 30px rgba(0,0,0,0.55), 0 14px 50px rgba(0,0,0,0.5);
-}
-
-.pile-center {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  z-index: 2;
+.pile-hint-bar {
+  max-width: 900px;
+  margin: 0 auto 16px;
   text-align: center;
-}
-.pile-icon {
-  font-size: 2.6rem;
-  filter: drop-shadow(0 0 14px rgba(244,201,93,0.55));
-  position: relative;
-  width: 64px;
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.pile-icon-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 2px solid var(--gold);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
-}
-.pile-hint {
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.4);
   border: 1px solid rgba(255,255,255,0.18);
   color: var(--text);
-  padding: 6px 14px;
+  padding: 8px 16px;
   border-radius: 999px;
-  font-size: 0.85rem;
-  max-width: 260px;
-  min-height: 1.2em;
-}
-
-/* ---------------- Spieler-Panel ---------------- */
-
-.player-panel {
-  position: fixed;
-  top: 76px;
-  left: 16px;
-  width: 220px;
-  max-width: 34vw;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px;
-  z-index: 20;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-  max-height: calc(100vh - 110px - var(--bottom-bar-height));
-  overflow-y: auto;
-}
-.player-panel h3 {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-dim);
-  margin: 0 0 8px;
-}
-.player-panel-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.player-panel-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 7px 9px;
-  border-radius: 8px;
-  background: var(--bg-alt);
-  border: 1px solid transparent;
-  font-size: 0.85rem;
-}
-.player-panel-row.me { border-color: var(--gold); }
-.player-panel-row.key-holder { border-color: var(--success); box-shadow: 0 0 10px rgba(62,207,142,0.4); }
-.player-panel-row.disconnected { opacity: 0.45; }
-.player-panel-name {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  font-size: 0.9rem;
   font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.player-panel-claim {
-  display: block;
-  color: var(--text-dim);
-  font-size: 0.72rem;
-  font-style: italic;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-}
-.player-panel-count {
-  color: var(--gold-bright);
-  font-weight: 700;
-  font-size: 0.8rem;
-  white-space: nowrap;
-  flex-shrink: 0;
 }
 
-.seats-layer { position: absolute; inset: 0; }
-
-.seat {
-  position: absolute;
-  top: 0; left: 0;
-  transform: translate(-50%, -50%);
+.player-rows {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  width: 168px;
-  text-align: center;
-  z-index: 3;
-}
-.seat-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--panel-alt);
-  border: 3px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--text);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.seat.me .seat-avatar { border-color: var(--gold); }
-.seat.key-holder .seat-avatar {
-  border-color: var(--success);
-  box-shadow: 0 0 0 4px rgba(62,207,142,0.35), 0 0 18px rgba(62,207,142,0.6);
-  animation: seat-pulse 1.4s ease-in-out infinite;
-}
-.seat.disconnected .seat-avatar { opacity: 0.4; }
-@keyframes seat-pulse {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(62,207,142,0.35), 0 0 18px rgba(62,207,142,0.6); }
-  50% { box-shadow: 0 0 0 7px rgba(62,207,142,0.2), 0 0 26px rgba(62,207,142,0.85); }
+  gap: 12px;
 }
 
-.seat-name { font-size: 0.82rem; font-weight: 700; max-width: 168px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.seat-tags { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
-.seat-claim {
-  font-size: 0.7rem;
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, var(--panel) 0%, var(--panel-alt) 130%);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+.player-row.me { border-color: var(--gold); }
+.player-row.key-holder {
+  border-color: var(--success);
+  box-shadow: 0 0 0 3px rgba(62,207,142,0.3), 0 6px 18px rgba(0,0,0,0.35);
+  animation: seat-pulse 1.4s ease-in-out infinite;
+}
+.player-row.disconnected { opacity: 0.5; }
+@keyframes seat-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(62,207,142,0.3), 0 6px 18px rgba(0,0,0,0.35); }
+  50% { box-shadow: 0 0 0 6px rgba(62,207,142,0.18), 0 6px 22px rgba(0,0,0,0.4); }
+}
+
+.player-row-info {
+  flex: 0 0 auto;
+  width: clamp(96px, 20vw, 170px);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.player-row-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.player-row-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag.me-tag { background: var(--panel-alt); color: var(--gold-bright); border: 1px solid var(--gold); }
+.player-row-claim {
+  font-size: 0.75rem;
   color: var(--text-dim);
   font-style: italic;
-  max-width: 168px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   min-height: 1.1em;
 }
-.seat-key { font-size: 0.85rem; }
+.player-row-count { font-size: 0.72rem; color: var(--gold-bright); font-weight: 700; }
 
-.chamber-row { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; max-width: 168px; }
+.chamber-row {
+  flex: 1 1 auto;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
 .chamber-slot {
-  width: 26px;
-  height: 36px;
-  border-radius: 5px;
+  --slot-w: clamp(48px, 8vw, 84px);
+  width: var(--slot-w);
+  height: calc(var(--slot-w) * 1.4);
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem;
+  font-size: clamp(1.1rem, 2.4vw, 1.7rem);
   background: #0e0a05;
   border: 2px solid var(--gold);
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
@@ -569,24 +473,15 @@ input:focus, select:focus { outline: 2px solid var(--gold); }
 
 @media (max-width: 640px) {
   :root { --bottom-bar-height: 178px; }
-  .table-oval { width: 94vw; height: 76vw; max-height: 44vh; border-width: 6px; }
-  .seat { width: 108px; }
-  .seat-avatar { width: 42px; height: 42px; font-size: 1.05rem; }
-  .seat-name { font-size: 0.72rem; max-width: 108px; }
-  .seat-claim { max-width: 108px; }
-  .chamber-slot { width: 20px; height: 28px; font-size: 0.72rem; }
-  .chamber-row { max-width: 108px; }
 
-  .player-panel {
-    position: static;
-    width: auto;
-    max-width: none;
-    max-height: none;
-    margin: 10px 12px 0;
-    overflow-y: visible;
+  .player-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
   }
-  .player-panel-list { flex-direction: row; overflow-x: auto; padding-bottom: 2px; }
-  .player-panel-row { flex-shrink: 0; }
+  .player-row-info { width: auto; }
+  .chamber-row { justify-content: center; }
+  .chamber-slot { --slot-w: clamp(44px, 16vw, 68px); }
 
   .claim-panel { flex-direction: column; }
 }

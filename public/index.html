@@ -98,22 +98,9 @@
     </div>
   </div>
 
-  <aside id="player-panel" class="player-panel">
-    <h3>Spieler</h3>
-    <ul id="player-panel-list" class="player-panel-list"></ul>
-  </aside>
-
   <main class="table-wrap">
-    <div id="table-oval" class="table-oval">
-      <div id="pile-center" class="pile-center">
-        <div id="pile-icon" class="pile-icon">
-          <span id="pile-icon-emoji">🗝️</span>
-          <img id="pile-icon-img" class="pile-icon-img" src="assets/tds-key.jpeg" alt="" onerror="this.remove()" onload="document.getElementById('pile-icon-emoji').classList.add('hidden')" />
-        </div>
-        <div id="pile-hint" class="pile-hint"></div>
-      </div>
-      <div id="seats-layer" class="seats-layer"></div>
-    </div>
+    <div id="pile-hint-bar" class="pile-hint-bar hidden"></div>
+    <ul id="player-rows" class="player-rows"></ul>
   </main>
 
   <div id="reveal-overlay" class="modal hidden">
