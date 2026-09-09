@@ -384,7 +384,7 @@
     }
   }
 
-  function renderRoleAndClaim(state) {
+  function renderRoleAndTally(state) {
     const roleValue = $('role-panel-value');
     const roleTally = $('role-panel-tally');
     const roleImg = $('role-panel-img');
@@ -400,11 +400,13 @@
       roleValue.className = 'role-panel-value';
       roleImg.classList.add('hidden');
     }
+    roleTally.innerHTML = '';
     if (latestInfo && latestInfo.ownTally) {
       const t = latestInfo.ownTally;
-      roleTally.textContent = `Bei dir noch verdeckt: 🪙 ${t.gold} · 🔥 ${t.falle} · ⬜ ${t.leer}`;
-    } else {
-      roleTally.textContent = '';
+      roleTally.appendChild(el('span', { class: 'tally-label', text: 'Bei dir insgesamt noch verdeckt:' }));
+      roleTally.appendChild(el('span', { class: 'tally-chip gold', text: `🪙 ${t.gold}` }));
+      roleTally.appendChild(el('span', { class: 'tally-chip falle', text: `🔥 ${t.falle}` }));
+      roleTally.appendChild(el('span', { class: 'tally-chip leer', text: `⬜ ${t.leer}` }));
     }
 
     const hint = $('turn-hint');
@@ -421,16 +423,6 @@
       hint.textContent = '';
     }
   }
-
-  $('btn-claim').addEventListener('click', () => {
-    const text = $('claim-input').value.trim();
-    if (!text) return;
-    socket.emit('setClaim', { text });
-    $('claim-input').value = '';
-  });
-  $('claim-input').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') $('btn-claim').click();
-  });
 
   function renderRoundEnd(state) {
     if (state.phase !== 'roundend') { hide($('roundend-panel')); return; }
@@ -501,7 +493,7 @@
     renderPileHint(state);
     renderPlayerRows(state);
     renderRevealOverlay(state);
-    renderRoleAndClaim(state);
+    renderRoleAndTally(state);
     renderRoundEnd(state);
     renderGameEnd(state);
 
@@ -559,7 +551,7 @@
 
   socket.on('yourInfo', (info) => {
     latestInfo = info;
-    if (latestState) renderRoleAndClaim(latestState);
+    if (latestState) renderRoleAndTally(latestState);
   });
 
   socket.on('gameState', (state) => {

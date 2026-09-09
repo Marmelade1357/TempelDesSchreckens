@@ -399,13 +399,13 @@ input:focus, select:focus { outline: 2px solid var(--gold); }
 .bottom-bar-inner { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
 .role-panel {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
   flex-wrap: wrap;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 8px 14px;
+  padding: 10px 14px;
 }
 .role-panel-img {
   width: 34px;
@@ -415,13 +415,24 @@ input:focus, select:focus { outline: 2px solid var(--gold); }
   border: 2px solid var(--gold);
   flex-shrink: 0;
 }
+.role-panel-main { display: flex; align-items: baseline; gap: 8px; }
 .role-panel-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
 .role-panel-value { font-weight: 800; font-size: 1.05rem; }
 .role-panel-value.abenteurer { color: var(--success); }
 .role-panel-value.waechterin { color: var(--danger); }
-.role-panel-tally { color: var(--text-dim); font-size: 0.85rem; margin-left: auto; }
-.claim-panel { display: flex; gap: 8px; }
-.claim-panel input { flex: 1; }
+.role-panel-tally { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.tally-label { color: var(--text-dim); font-size: 0.75rem; }
+.tally-chip {
+  background: var(--panel-alt);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text);
+}
+.tally-chip.gold { border-color: var(--gold); color: var(--gold-bright); }
+.tally-chip.falle { border-color: var(--danger); color: var(--danger); }
 .turn-hint { margin: 0; text-align: center; color: var(--gold-bright); font-weight: 600; min-height: 1.2em; font-size: 0.9rem; }
 
 /* ---------------- Modals ---------------- */
@@ -483,5 +494,5 @@ input:focus, select:focus { outline: 2px solid var(--gold); }
   .chamber-row { justify-content: center; }
   .chamber-slot { --slot-w: clamp(44px, 16vw, 68px); }
 
-  .claim-panel { flex-direction: column; }
+  .role-panel-tally { margin-left: 0; width: 100%; }
 }

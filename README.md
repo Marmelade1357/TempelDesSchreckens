@@ -10,7 +10,7 @@ Basiert auf dem offiziellen Regelwerk: 3–10 Spieler, zwei geheime Teams (Abent
 - **Geheime Rolle** – jede:r sieht nur die eigene Rolle privat auf dem eigenen Gerät, aufgedeckt wird erst ganz am Spielende.
 - **Verdeckte Schatzkammern** – jede:r kennt nur die Gesamtzahl an Gold/leer/Feuerfalle unter den eigenen (verdeckten) Kammern, nie die genaue Position – exakt wie beim „Anschauen, dann blind mischen" im Original.
 - **Schlüssel-Mechanik**: Wer den Schlüssel hat, öffnet reihum bei einer Mitspielerin/einem Mitspieler eine Kammer; wessen Kammer geöffnet wurde, bekommt den Schlüssel als Nächste:r.
-- **Behauptungen/Bluffs**: Jede Person kann jederzeit einen frei wählbaren Text absetzen (z. B. „Ich bin Abenteurer, 2× Gold bei mir") – sichtbar für alle, aber natürlich ungeprüft. Genau dieses Lügen und Diskutieren macht das Spiel aus.
+- **Behauptungen/Bluffs**: Das eigentliche Lügen und Diskutieren läuft außerhalb der App (am Tisch, per Anruf/Discord o. Ä.) – genau das macht das Spiel aus. Nur Test-Bots geben zusätzlich eine kurze Text-Behauptung ab, sichtbar in ihrer Zeile in der Spielerliste.
 - Automatische Rundenwechsel (5 → 4 → 3 → 2 Kammern pro Person) und Spielende-Erkennung nach den 3 offiziellen Bedingungen.
 - Wiederverbindung nach Verbindungsabbruch/Neuladen der Seite (Sitzplatz, Rolle und Kammern bleiben erhalten).
 - Läuft komplett im Speicher – keine Datenbank nötig, ideal für einen Raspberry Pi.
