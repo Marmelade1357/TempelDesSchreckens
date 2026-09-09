@@ -131,13 +131,11 @@
     <div class="bottom-bar-inner">
       <div id="role-panel" class="role-panel">
         <img id="role-panel-img" class="role-panel-img hidden" src="" alt="" onerror="this.classList.add('hidden')" />
-        <span class="role-panel-label">Deine Rolle</span>
-        <span id="role-panel-value" class="role-panel-value">?</span>
-        <span id="role-panel-tally" class="role-panel-tally"></span>
-      </div>
-      <div class="claim-panel">
-        <input id="claim-input" maxlength="140" placeholder="Was behauptest du? (Rolle & Inhalt deiner Kammern)" />
-        <button id="btn-claim" class="btn secondary small">Sagen</button>
+        <div class="role-panel-main">
+          <span class="role-panel-label">Deine Rolle</span>
+          <span id="role-panel-value" class="role-panel-value">?</span>
+        </div>
+        <div id="role-panel-tally" class="role-panel-tally"></div>
       </div>
       <p id="turn-hint" class="turn-hint"></p>
     </div>
