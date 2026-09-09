@@ -337,6 +337,31 @@ input:focus, select:focus { outline: 2px solid var(--gold); }
   50% { box-shadow: 0 0 0 6px rgba(244,201,93,0.15), 0 2px 14px rgba(0,0,0,0.6); }
 }
 
+/* Gesamtstand der eigenen Kammern - nur in der eigenen Zeile, direkt hinter
+   den eigenen Karten, per Trennlinie optisch abgesetzt. */
+.own-total-box {
+  --slot-w: clamp(48px, 8vw, 84px);
+  width: var(--slot-w);
+  min-height: calc(var(--slot-w) * 1.4);
+  flex-shrink: 0;
+  margin-left: 6px;
+  padding-left: 12px;
+  border-left: 2px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+}
+.own-total-chip {
+  font-size: clamp(0.78rem, 1.6vw, 0.95rem);
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--text);
+}
+.own-total-chip.gold { color: var(--gold-bright); }
+.own-total-chip.falle { color: var(--danger); }
+
 /* ---------------- Schlüssel-Overlay ---------------- */
 
 .key-modal-content { text-align: center; max-width: 420px; }
@@ -420,19 +445,6 @@ input:focus, select:focus { outline: 2px solid var(--gold); }
 .role-panel-value { font-weight: 800; font-size: 1.05rem; }
 .role-panel-value.abenteurer { color: var(--success); }
 .role-panel-value.waechterin { color: var(--danger); }
-.role-panel-tally { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
-.tally-label { color: var(--text-dim); font-size: 0.75rem; }
-.tally-chip {
-  background: var(--panel-alt);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 4px 11px;
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: var(--text);
-}
-.tally-chip.gold { border-color: var(--gold); color: var(--gold-bright); }
-.tally-chip.falle { border-color: var(--danger); color: var(--danger); }
 .turn-hint { margin: 0; text-align: center; color: var(--gold-bright); font-weight: 600; min-height: 1.2em; font-size: 0.9rem; }
 
 /* ---------------- Modals ---------------- */
@@ -493,6 +505,5 @@ input:focus, select:focus { outline: 2px solid var(--gold); }
   .player-row-info { width: auto; }
   .chamber-row { justify-content: center; }
   .chamber-slot { --slot-w: clamp(44px, 16vw, 68px); }
-
-  .role-panel-tally { margin-left: 0; width: 100%; }
+  .own-total-box { --slot-w: clamp(44px, 16vw, 68px); }
 }

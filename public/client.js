@@ -318,6 +318,17 @@
       });
       const chamberRow = el('div', { class: 'chamber-row' }, slots);
 
+      // Nur in der eigenen Zeile: Gesamtstand der eigenen (noch verdeckten)
+      // Kammern - niemand sonst darf das sehen, daher ausschließlich bei isMe.
+      if (isMe && latestInfo && latestInfo.ownTally) {
+        const t = latestInfo.ownTally;
+        chamberRow.appendChild(el('div', { class: 'own-total-box', title: 'Gesamtstand deiner eigenen Kammern' }, [
+          el('span', { class: 'own-total-chip gold', text: `🪙 ${t.gold}` }),
+          el('span', { class: 'own-total-chip falle', text: `🔥 ${t.falle}` }),
+          el('span', { class: 'own-total-chip leer', text: `⬜ ${t.leer}` }),
+        ]));
+      }
+
       list.appendChild(el('li', { class: classes.join(' ') }, [info, chamberRow]));
     });
   }
@@ -386,7 +397,6 @@
 
   function renderRoleAndTally(state) {
     const roleValue = $('role-panel-value');
-    const roleTally = $('role-panel-tally');
     const roleImg = $('role-panel-img');
     if (latestInfo && latestInfo.role) {
       roleValue.textContent = ROLE_LABEL[latestInfo.role] || latestInfo.role;
@@ -399,14 +409,6 @@
       roleValue.textContent = '?';
       roleValue.className = 'role-panel-value';
       roleImg.classList.add('hidden');
-    }
-    roleTally.innerHTML = '';
-    if (latestInfo && latestInfo.ownTally) {
-      const t = latestInfo.ownTally;
-      roleTally.appendChild(el('span', { class: 'tally-label', text: 'Bei dir insgesamt noch verdeckt:' }));
-      roleTally.appendChild(el('span', { class: 'tally-chip gold', text: `🪙 ${t.gold}` }));
-      roleTally.appendChild(el('span', { class: 'tally-chip falle', text: `🔥 ${t.falle}` }));
-      roleTally.appendChild(el('span', { class: 'tally-chip leer', text: `⬜ ${t.leer}` }));
     }
 
     const hint = $('turn-hint');
@@ -551,7 +553,10 @@
 
   socket.on('yourInfo', (info) => {
     latestInfo = info;
-    if (latestState) renderRoleAndTally(latestState);
+    if (latestState) {
+      renderRoleAndTally(latestState);
+      if (latestState.phase !== 'lobby') renderPlayerRows(latestState);
+    }
   });
 
   socket.on('gameState', (state) => {
