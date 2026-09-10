@@ -63,6 +63,68 @@
     if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
   }
 
+  function vibrate(pattern) {
+    if (navigator.vibrate) {
+      try { navigator.vibrate(pattern); } catch (e) { /* Vibration ist optional */ }
+    }
+  }
+
+  // Kurzer, synthetischer Zwei-Ton-Hinweis, sobald man selbst den Schlüssel
+  // bekommt (also eine Kammer öffnen darf) - unabhängig von den mp3-Umdreh-
+  // Sounds oben, damit er auch ohne die (austauschbaren) Audio-Dateien
+  // funktioniert. Rein additiv, siehe playSound() weiter oben.
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (audioCtx) return audioCtx;
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (Ctx) audioCtx = new Ctx();
+    } catch (e) { audioCtx = null; }
+    return audioCtx;
+  }
+  function playTone(freq, duration, delay, volume) {
+    if (!soundEnabled) return;
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    try {
+      const t0 = ctx.currentTime + (delay || 0);
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0, t0);
+      gain.gain.linearRampToValueAtTime(volume || 0.15, t0 + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t0);
+      osc.stop(t0 + duration + 0.02);
+    } catch (e) { /* Sound ist rein kosmetisch - Fehler einfach ignorieren */ }
+  }
+  function playTurnAlert() { playTone(660, 0.1, 0, 0.14); playTone(880, 0.12, 0.1, 0.14); }
+
+  // ---------------------------------------------------------------------
+  // Screen Wake Lock - verhindert, dass sich das Handy während des Spiels
+  // von selbst abschaltet/sperrt (z.B. während man auf den Schlüssel
+  // wartet). Rein additiv, siehe Bluff/Poker für dasselbe Muster.
+  // ---------------------------------------------------------------------
+  let wakeLock = null;
+  async function requestWakeLock() {
+    if (!('wakeLock' in navigator)) return;
+    try {
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch (e) { /* z.B. Tab nicht sichtbar oder nicht unterstützt - ignorieren */ }
+  }
+  function releaseWakeLock() {
+    if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+  }
+  document.addEventListener('visibilitychange', () => {
+    const homeScreen = document.getElementById('screen-home');
+    const onHomeScreen = homeScreen && !homeScreen.classList.contains('hidden');
+    if (document.visibilityState === 'visible' && !onHomeScreen) requestWakeLock();
+  });
+
   // ---------------------------------------------------------------------
   // Helfer
   // ---------------------------------------------------------------------
@@ -73,6 +135,24 @@
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach((s) => hide(s));
     show($(id));
+    if (id === 'screen-home') releaseWakeLock(); else requestWakeLock();
+  }
+
+  // Zwei-Klick-Bestätigung, analog zum bestehenden "Bot entfernen"-Muster -
+  // verhindert, dass ein Fehltipp auf "Verlassen" sofort den eigenen Platz
+  // aufgibt (anders als ein Verbindungsabbruch lässt sich das nicht per
+  // Reconnect rückgängig machen).
+  function attachConfirmClick(btn, onConfirm) {
+    if (!btn) return;
+    const originalText = btn.textContent;
+    let confirmTimer = null;
+    const reset = () => { clearTimeout(confirmTimer); confirmTimer = null; btn.classList.remove('danger'); btn.textContent = originalText; };
+    btn.addEventListener('click', () => {
+      if (confirmTimer) { reset(); onConfirm(); return; }
+      btn.classList.add('danger');
+      btn.textContent = 'Sicher?';
+      confirmTimer = setTimeout(reset, 3000);
+    });
   }
 
   let toastTimer = null;
@@ -149,13 +229,13 @@
     });
   });
 
-  $('btn-leave-lobby').addEventListener('click', () => {
+  attachConfirmClick($('btn-leave-lobby'), () => {
     socket.emit('leaveRoom');
     clearSession();
     showScreen('screen-home');
   });
 
-  $('btn-leave-game').addEventListener('click', () => {
+  attachConfirmClick($('btn-leave-game'), () => {
     socket.emit('leaveRoom');
     clearSession();
     showScreen('screen-home');
@@ -176,6 +256,7 @@
   $('btn-add-bot').addEventListener('click', () => socket.emit('addBot'));
   $('btn-fill-bots').addEventListener('click', () => socket.emit('fillBots'));
   $('btn-start').addEventListener('click', () => socket.emit('startGame'));
+  $('setting-afk-timeout').addEventListener('change', (e) => socket.emit('updateSettings', { afkTimeoutEnabled: e.target.checked }));
 
   let lastSeenRoundNumber = 0;
 
@@ -233,6 +314,23 @@
       show(dist);
     } else {
       hide(dist);
+    }
+
+    const settingsBox = $('lobby-settings');
+    const settingsDisplay = $('lobby-settings-display');
+    const afkEnabled = !state.settings || state.settings.afkTimeoutEnabled !== false;
+    if (amHost) {
+      show(settingsBox);
+      hide(settingsDisplay);
+      $('setting-afk-timeout').checked = afkEnabled;
+    } else {
+      hide(settingsBox);
+      if (afkEnabled) {
+        settingsDisplay.textContent = '⏱️ Auto-Zug nach 60s Inaktivität aktiv.';
+        show(settingsDisplay);
+      } else {
+        hide(settingsDisplay);
+      }
     }
 
     const n = state.players.length;
@@ -559,8 +657,27 @@
     }
   });
 
+  let notifiedKeyMarker = null;
+  function maybeNotifyMyTurn(state) {
+    if (state.phase !== 'playing' || state.keyPlayerId !== myId()) return;
+    // Zähle die bereits geöffneten Kammern insgesamt (über alle Spieler) - das
+    // ändert sich bei jeder einzelnen Öffnung, auch wenn derselbe Spieler
+    // innerhalb einer Runde mehrfach den Schlüssel bekommt (reine round/
+    // keyPlayerId-Kombination würde solche Wiederholungen sonst verschlucken).
+    let revealedCount = 0;
+    Object.values(state.chambers || {}).forEach((slots) => {
+      (slots || []).forEach((s) => { if (s && s.revealed) revealedCount++; });
+    });
+    const marker = state.code + ':' + state.roundNumber + ':' + revealedCount + ':' + state.keyPlayerId;
+    if (marker === notifiedKeyMarker) return;
+    notifiedKeyMarker = marker;
+    playTurnAlert();
+    vibrate(120);
+  }
+
   socket.on('gameState', (state) => {
     latestState = state;
+    maybeNotifyMyTurn(state);
     if (state.phase === 'lobby') {
       showScreen('screen-lobby');
       renderLobby(state);

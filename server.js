@@ -149,6 +149,7 @@ function createRoom() {
     code,
     hostId: null,
     players: [], // { id, token, name, socketId, connected, isBot }
+    settings: { afkTimeoutEnabled: true },
     phase: 'lobby', // lobby | playing | reveal | roundend | gameend
     roles: null, // playerId -> 'abenteurer' | 'waechterin' (nur an Besitzer + am Spielende öffentlich)
     chambers: null, // playerId -> [{ content, revealed }]
@@ -251,6 +252,7 @@ function publicState(room) {
     hostId: room.hostId,
     minPlayers: MIN_PLAYERS,
     maxPlayers: MAX_PLAYERS,
+    settings: room.settings,
     roleCounts: roleCountsFor(n),
     chamberCounts: chamberCountsFor(n),
     roundNumber: room.roundNumber,
@@ -486,6 +488,12 @@ const BOT_DELAY_MAX = Number(process.env.BOT_DELAY_MAX_MS) || 3200;
 const BOT_CLAIM_DELAY_MIN = Number(process.env.BOT_CLAIM_DELAY_MIN_MS) || 900;
 const BOT_CLAIM_DELAY_MAX = Number(process.env.BOT_CLAIM_DELAY_MAX_MS) || 2600;
 
+// AFK-Timeout für verbundene, aber untätige Schlüssel-Spieler:innen (z. B.
+// gesperrtes Handy) - per Lobby-Einstellung abschaltbar
+// (room.settings.afkTimeoutEnabled), über eine Umgebungsvariable
+// konfigurierbar, damit Tests nicht wirklich 60s warten müssen.
+const AFK_TIMEOUT_MS = Number(process.env.AFK_TIMEOUT_MS) || 60000;
+
 function randomDelay(min = BOT_DELAY_MIN, max = BOT_DELAY_MAX) {
   return min + Math.random() * (max - min);
 }
@@ -590,17 +598,30 @@ function decideBotChoice(room, bot) {
 function scheduleBotTurnIfNeeded(room) {
   if (room.phase !== 'playing') return;
   const actor = findPlayer(room, room.keyPlayerId);
-  if (!actor || !actor.isBot) return;
+  if (!actor) return;
+  const isConnectedHuman = !actor.isBot && actor.connected;
+  const isDisconnectedHuman = !actor.isBot && !actor.connected;
+  if (!actor.isBot && !isDisconnectedHuman && !isConnectedHuman) return;
+  // Ein verbundener Mensch bekommt nur dann einen Auto-Zug-Timer, wenn der
+  // Host das AFK-Timeout nicht abgeschaltet hat - eine getrennte Person oder
+  // ein Bot darf dagegen nie dauerhaft blockieren, unabhängig davon.
+  if (isConnectedHuman && !room.settings.afkTimeoutEnabled) return;
+
   const snapshotKey = room.keyPlayerId;
   const snapshotRound = room.roundNumber;
   const snapshotOpened = room.roundOpenedCount;
+  const delay = isConnectedHuman ? AFK_TIMEOUT_MS : randomDelay();
   setTimeout(() => {
     if (!rooms.has(room.code)) return;
     if (room.phase !== 'playing') return;
     if (room.keyPlayerId !== snapshotKey || room.roundNumber !== snapshotRound || room.roundOpenedCount !== snapshotOpened) return;
+    // Für Bots UND für abwesende/untätige Menschen gleichermaßen: eine
+    // zufällig gewichtete Kammer bei einer anderen Person öffnen - niemand
+    // (auch der Server nicht) weiß vorab, was sich darin befindet, daher ist
+    // das ein fairer, harmloser Zufallszug im Namen der/des Abwesenden.
     const choice = decideBotChoice(room, actor);
     if (choice) handleOpenChamber(room, actor.id, choice.targetPlayerId, choice.slotIndex);
-  }, randomDelay());
+  }, delay);
 }
 
 // ---------------------------------------------------------------------------
@@ -742,6 +763,17 @@ io.on('connection', (socket) => {
     if (!room || room.phase !== 'lobby') return;
     if (socket.data.playerId !== room.hostId) return;
     while (room.players.length < MIN_PLAYERS) addBot(room);
+    touchRoom(room);
+    broadcastState(room);
+  });
+
+  socket.on('updateSettings', (settings) => {
+    const room = rooms.get(socket.data.roomCode);
+    if (!room || room.phase !== 'lobby') return;
+    if (socket.data.playerId !== room.hostId) return;
+    if (settings && typeof settings.afkTimeoutEnabled === 'boolean') {
+      room.settings.afkTimeoutEnabled = settings.afkTimeoutEnabled;
+    }
     touchRoom(room);
     broadcastState(room);
   });

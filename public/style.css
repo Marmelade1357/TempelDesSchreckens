@@ -192,6 +192,10 @@ input:focus, select:focus { outline: 2px solid var(--gold); }
   font-size: 0.85rem;
   line-height: 1.6;
 }
+
+.lobby-settings { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.checkbox-label { display: flex; align-items: center; gap: 6px; color: var(--text); font-size: 0.9rem; cursor: pointer; }
+.checkbox-label input { width: auto; }
 .distribution strong { color: var(--gold-bright); }
 
 /* ---------------- Spiel: Kopfzeile ---------------- */
